@@ -11,7 +11,7 @@ export const COURSE = {
 
 export const TEAM: { name: string; registration: string }[] = [
   { name: 'Guilherme', registration: '0000000' },
-  { name: 'Integrante 2', registration: '0000000' },
+  { name: 'Felipe Dutrain de Sales', registration: '202402011359' },
   { name: 'Integrante 3', registration: '0000000' },
   { name: 'Integrante 4', registration: '0000000' },
   { name: 'Integrante 5', registration: '0000000' },
