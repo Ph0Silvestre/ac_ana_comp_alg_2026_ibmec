@@ -3,13 +3,18 @@ import { CanvasStage } from '../components/canvas/CanvasStage';
 import { AdjacencyDrawer } from '../components/memory/AdjacencyDrawer';
 import { ResultsPanel } from '../components/results/ResultsPanel';
 import { SourcePanel } from '../components/source/SourcePanel';
+import { CampaignSummary } from '../components/mission/CampaignSummary';
+import { NPCMissionPanel } from '../components/mission/NPCMissionPanel';
 import { ConfirmInline } from '../components/ui/ConfirmInline';
+import { Flags } from '../components/ui/Flags';
 import { KeyHint } from '../components/ui/KeyHint';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { TileStrip } from '../components/ui/TileStrip';
 import { Zh } from '../components/ui/Zh';
 import { AlgoBar } from '../components/workspace/AlgoBar';
 import { ALGOS } from '../domain/types';
+import { MISSIONS } from '../game/missions';
+import { useCampaignStore, useMissionController } from '../game/useCampaignStore';
 import { useGraphStore } from '../store/useGraphStore';
 import { COURSE } from '../data/team';
 import styles from '../components/workspace/workspace.module.css';
@@ -30,6 +35,11 @@ export function Workspace() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [relayoutToken, setRelayoutToken] = useState(0);
+  // Campanha: avalia as execuções reais. No modo livre não interfere em nada.
+  useMissionController();
+  const missionTarget = useCampaignStore((s) =>
+    s.playMode === 'campanha' && !s.campaign.finished ? MISSIONS[s.campaign.index].target : null,
+  );
 
   // Preview ao vivo com debounce de 300 ms.
   useEffect(() => {
@@ -69,6 +79,7 @@ export function Workspace() {
           <span>{COURSE.title}</span>
           <Zh className={styles.brandZh}>{COURSE.titleZh}</Zh>
         </h1>
+        <Flags />
 
         <div className={styles.modeSwitch} role="radiogroup" aria-label="Fonte do grafo">
           <button type="button" role="radio" aria-checked={mode === 'map'} onClick={() => setMode('map')}>
@@ -132,7 +143,7 @@ export function Workspace() {
               Reorganizar desenho
             </button>
           )}
-          <AlgoBar />
+          <AlgoBar showTarget={missionTarget !== null} />
         </div>
 
         <aside className={`${styles.side} ${styles.right}`}>
@@ -141,7 +152,12 @@ export function Workspace() {
               <button type="button" className={styles.collapse} onClick={() => setRightOpen(false)} aria-label="Recolher painel de resultado">
                 <Chevron dir="right" />
               </button>
-              <ResultsPanel />
+              <div className={styles.rightStack}>
+                <NPCMissionPanel />
+                <div className={styles.rightResults}>
+                  <ResultsPanel />
+                </div>
+              </div>
             </>
           ) : (
             <button type="button" className={styles.rail} onClick={() => setRightOpen(true)} aria-label="Abrir painel de resultado">
@@ -153,6 +169,7 @@ export function Workspace() {
 
         <AdjacencyDrawer />
       </main>
+      <CampaignSummary />
     </div>
   );
 }

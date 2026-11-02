@@ -11,7 +11,7 @@ const SPEEDS: { value: Speed; label: string }[] = [
 ];
 
 /** Legenda de linhas do metrô: cada algoritmo é uma pílula com a faixa da cor da linha. */
-export function AlgoBar() {
+export function AlgoBar({ showTarget = false }: { showTarget?: boolean }) {
   const parsed = useGraphStore((s) => s.parsed[s.mode]);
   const start = useGraphStore((s) => s.start);
   const target = useGraphStore((s) => s.target);
@@ -75,7 +75,7 @@ export function AlgoBar() {
       </div>
 
       <div className={styles.algoRow}>
-        {activeAlgo === 'dijkstra' && (
+        {(activeAlgo === 'dijkstra' || showTarget) && (
           <label className={`${styles.selectField} ${styles.compact}`}>
             <span>
               Destino<Zh className="zh-tag">終點</Zh>

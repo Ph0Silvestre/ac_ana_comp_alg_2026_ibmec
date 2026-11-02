@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { ApiError, runAlgorithm, type BfsResponse, type DfsResponse, type DijkstraResponse, type KruskalResponse } from '../api/client';
+import { ApiError, runAlgorithm, type AlgoResponse, type BfsResponse, type DfsResponse, type DijkstraResponse, type KruskalResponse } from '../api/client';
 import { PROPOSAL_TEXT } from '../data/examples';
 import { HK_NODES } from '../data/hongKongGraph';
 import { toPayload } from '../domain/adjacency';
 import { parseGraphText, type ParseResult } from '../domain/parser';
-import type { Algo, Mode } from '../domain/types';
+import type { Algo, GraphPayload, Mode } from '../domain/types';
 
 export interface Source {
   text: string;
@@ -18,6 +18,17 @@ export interface Results {
   dijkstra?: DijkstraResponse;
   kruskal?: KruskalResponse;
 }
+
+/**
+ * Última execução pedida pelo usuário, para quem quiser reagir a ela (o modo campanha).
+ * Reexecuções automáticas (troca de início) não geram tentativa.
+ */
+export type AttemptOutcome = { ok: true; response: AlgoResponse; graph: GraphPayload } | { ok: false; message: string };
+
+export type Attempt = { seq: number; algo: Algo; start: string; target: string } & AttemptOutcome;
+
+/** Quem pediu a execução: um clique/atalho do usuário ou a reexecução depois de trocar o início. */
+export type RunOrigin = 'user' | 'auto';
 
 export type Screen = 'title' | 'workspace' | 'end';
 export type Theme = 'light' | 'dark';
@@ -90,6 +101,7 @@ interface State {
   speed: Speed;
   replayToken: number;
   positions: Record<string, Point>;
+  lastAttempt: Attempt | null;
 
   setScreen: (s: Screen) => void;
   setMode: (m: Mode) => void;
@@ -103,7 +115,7 @@ interface State {
   setStart: (v: string) => Promise<void>;
   setTarget: (v: string) => void;
   setActiveAlgo: (a: Algo) => void;
-  run: (a: Algo) => Promise<void>;
+  run: (a: Algo, origin?: RunOrigin) => Promise<void>;
   setOverlayAll: (v: boolean) => void;
   setServerOnline: (v: boolean) => void;
   dismissError: () => void;
@@ -152,6 +164,7 @@ const initial = () => {
     speed: 1 as Speed,
     replayToken: 0,
     positions: {},
+    lastAttempt: null as Attempt | null,
   };
 };
 
@@ -213,7 +226,7 @@ export const useGraphStore = create<State>()((set, get) => ({
     const order = [...stale.filter((a) => a !== s.activeAlgo), ...stale.filter((a) => a === s.activeAlgo)];
     for (const a of order) {
       if (get().start !== start) return; // trocou de novo no meio: a chamada mais nova assume
-      await get().run(a);
+      await get().run(a, 'auto');
     }
     // run() troca a aba ativa; devolve a que o usuário estava vendo (ex.: Kruskal).
     if (get().start === start) set({ activeAlgo: s.activeAlgo });
@@ -221,19 +234,24 @@ export const useGraphStore = create<State>()((set, get) => ({
   setTarget: (target) => set({ target }),
   setActiveAlgo: (activeAlgo) => set({ activeAlgo }),
 
-  run: async (algo) => {
+  run: async (algo, origin = 'user') => {
     get().reparse();
     const s = get();
     const parsed = s.parsed[s.mode];
+    const attempt = (outcome: AttemptOutcome, target = s.target): Partial<State> =>
+      origin === 'user'
+        ? { lastAttempt: { seq: (get().lastAttempt?.seq ?? 0) + 1, algo, start: s.start, target, ...outcome } }
+        : {};
     const reason = blockReason(algo, parsed, s.start);
     if (reason) {
-      set({ error: reason, activeAlgo: algo });
+      set({ error: reason, activeAlgo: algo, ...attempt({ ok: false, message: reason }) });
       return;
     }
     const key = graphKey(parsed);
     set({ running: algo, error: null, activeAlgo: algo });
+    const payload = toPayload(parsed.graph);
     try {
-      const res = await runAlgorithm(algo, toPayload(parsed.graph), s.start);
+      const res = await runAlgorithm(algo, payload, s.start);
       const now = get();
       // Grafo, início ou sessão mudaram durante a requisição: resposta descartada.
       const startChanged = algo !== 'kruskal' && now.start !== s.start;
@@ -246,10 +264,13 @@ export const useGraphStore = create<State>()((set, get) => ({
         running: null,
         serverOnline: true,
         replayToken: st.replayToken + 1,
+        // Destino lido agora: o usuário pode tê-lo ajustado enquanto a requisição corria.
+        ...attempt({ ok: true, response: res, graph: payload }, now.target),
       }));
     } catch (e) {
       const offline = e instanceof ApiError && (e.status === null || e.status >= 500);
-      set({ error: e instanceof Error ? e.message : String(e), running: null, ...(offline ? { serverOnline: false } : {}) });
+      const message = e instanceof Error ? e.message : String(e);
+      set({ error: message, running: null, ...(offline ? { serverOnline: false } : {}), ...attempt({ ok: false, message }) });
     }
   },
 

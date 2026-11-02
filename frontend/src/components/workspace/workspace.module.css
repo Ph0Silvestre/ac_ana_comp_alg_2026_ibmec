@@ -339,3 +339,16 @@
   text-decoration: underline;
   color: var(--ink-muted);
 }
+
+/* Painel direito: NPC da campanha em cima, resultado embaixo */
+.rightStack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.rightResults {
+  flex: 1;
+  min-height: 0;
+}
