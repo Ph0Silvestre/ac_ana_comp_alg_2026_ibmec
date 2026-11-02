@@ -1,0 +1,62 @@
+/* Tokens da seção 7 da spec. Use só estes valores na interface. */
+
+:root {
+  /* Tema claro, "Plataforma" */
+  --bg: #e9edec;
+  --surface: #ffffff;
+  --land: #d7dedb;
+  --land-active: #c6d0cc;
+  --line-district: #b4bfba;
+  --ink: #1b2430;
+  --ink-muted: #5b6670;
+  --edge-idle: #9aa6a1;
+
+  --line-dfs: #e8761a;
+  --line-bfs: #0a72c5;
+  --line-dijkstra: #d7262e;
+  --line-kruskal: #10a35a;
+
+  --shadow-float: 0 12px 32px rgb(27 36 48 / 0.18), 0 2px 6px rgb(27 36 48 / 0.12);
+
+  --font-ui: 'Overpass', 'Segoe UI', system-ui, sans-serif;
+  --font-zh: 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+
+  /* Escala 1,25 com base 16 px */
+  --fs-13: 0.8125rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-20: 1.25rem;
+  --fs-25: 1.5625rem;
+  --fs-31: 1.9375rem;
+  --fs-39: 2.4375rem;
+  --fs-61: 3.8125rem;
+
+  --radius-panel: 14px;
+  --radius-input: 8px;
+  --radius-pill: 999px;
+
+  --ease-route: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  /* Tema escuro, "Victoria Harbour" */
+  --bg: #0c1a24;
+  --surface: #13242f;
+  --land: #1a2e3b;
+  --land-active: #24404f;
+  --line-district: #2d4757;
+  --ink: #e6edf0;
+  --ink-muted: #8fa3ae;
+  --edge-idle: #3d5666;
+
+  --line-dfs: #f59a45;
+  --line-bfs: #3b95de;
+  --line-dijkstra: #f0474e;
+  --line-kruskal: #2cc074;
+
+  --shadow-float: 0 12px 32px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.3);
+
+  color-scheme: dark;
+}

@@ -1,0 +1,213 @@
+.dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.handle {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: -1px;
+  padding: 8px 16px;
+  border: 1px solid var(--line-district);
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: var(--surface);
+  font-size: var(--fs-14);
+  font-weight: 600;
+  box-shadow: var(--shadow-float);
+  clip-path: inset(-40px -40px 0 -40px);
+}
+
+.handleBar {
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ink-muted);
+}
+
+.drawer {
+  pointer-events: auto;
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface);
+  border-top: 1px solid var(--line-district);
+  box-shadow: var(--shadow-float);
+}
+
+.inner {
+  max-height: min(46vh, 440px);
+  overflow-y: auto;
+  padding: 18px 24px 22px;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px 32px;
+  margin-bottom: 14px;
+}
+
+.header h2 {
+  font-size: var(--fs-20);
+  font-weight: 800;
+}
+
+.sub {
+  margin: 4px 0 0;
+  font-size: var(--fs-14);
+  color: var(--ink-muted);
+}
+
+.counters {
+  display: flex;
+  gap: 20px;
+  margin: 0;
+}
+
+.counters div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.counters dt {
+  font-size: var(--fs-13);
+  color: var(--ink-muted);
+}
+
+.counters dd {
+  margin: 0;
+  font-size: var(--fs-25);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ink);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px;
+}
+
+/* Quadro de estação */
+.board {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.boardRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line-district);
+}
+
+.vertex {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 3.5px solid var(--ink);
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: var(--fs-14);
+}
+
+.neighbors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--ink-muted);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+
+.pill > span {
+  padding: 2px 9px;
+}
+
+.pillWeight {
+  border-left: 1px solid var(--ink-muted);
+  background: var(--bg);
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.emptyList {
+  font-size: var(--fs-14);
+  color: var(--ink-muted);
+}
+
+.matrixBox {
+  min-width: 0;
+}
+
+.memSummary {
+  margin: 0;
+  font-size: var(--fs-16);
+  font-weight: 600;
+}
+
+.matrixScroll {
+  overflow: auto;
+  margin-top: 10px;
+}
+
+.matrix {
+  border-collapse: collapse;
+  font-size: var(--fs-14);
+  font-variant-numeric: tabular-nums;
+}
+
+.matrix th {
+  padding: 4px 8px;
+  font-weight: 800;
+}
+
+.matrix td {
+  min-width: 34px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--line-district);
+  text-align: center;
+}
+
+.cellFull {
+  font-weight: 600;
+}
+
+.cellEmpty {
+  background: var(--bg);
+}

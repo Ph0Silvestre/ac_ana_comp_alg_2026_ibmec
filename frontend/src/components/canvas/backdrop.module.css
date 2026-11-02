@@ -1,0 +1,45 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.district {
+  fill: var(--land);
+  stroke: var(--line-district);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+
+.active {
+  fill: var(--land-active);
+}
+
+.dim {
+  opacity: 0.35;
+}
+
+.route {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.station {
+  fill: var(--surface);
+  stroke: var(--ink);
+  stroke-width: 4;
+}
+
+.stationId {
+  fill: var(--ink);
+  font-size: 17px;
+  font-weight: 800;
+  text-anchor: middle;
+}
