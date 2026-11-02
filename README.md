@@ -10,7 +10,7 @@
 
 **Integrantes do Grupo (Preencher antes da entrega):**
 
-* \[Nome do Aluno 1\] - Matrícula: \[0000000\]
+* \Pedro Silvestre - Matrícula: \202402841904
 
 * \[Nome do Aluno 2\] - Matrícula: \[0000000\]
 
