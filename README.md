@@ -137,3 +137,46 @@ Para desenhar a rota do ponto inicial (A) até o destino (C), o front-end deve f
 * **DFS (Profundidade):** `GET /api/dfs/{vertice_inicial}` -> Retorna um array `caminho_percorrido` com a ordem exata de visitação.
 * **BFS (Largura):** `GET /api/bfs/{vertice_inicial}` -> Retorna um array `fila_execucao` representando as "ondas" de propagação do sinal.
 * **Kruskal (Árvore Geradora Mínima):** `GET /api/kruskal` -> Não precisa de vértice inicial. Retorna o `custo_total_fibra` e um array `arestas_selecionadas` com as ligações exatas que o front-end deve destacar de verde na tela para mostrar a rede de fibra ótica.
+
+## Front-end (React + Vite)
+
+A interface fica em `frontend/`. Ela não calcula nenhum algoritmo: antes de cada execução reenvia o grafo atual para `POST /api/iniciar-grafo` e mostra exatamente o que a API devolveu.
+
+### Como rodar (dois terminais)
+
+Pré-requisitos: Python 3.10+ e Node.js 20+.
+
+**Terminal 1, backend:**
+
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+**Terminal 2, front-end:**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abra `http://localhost:5173`. O Vite repassa `/api` e `/status` para `http://127.0.0.1:8000`, então não há problema de CORS. Se o backend estiver desligado, a interface mostra o aviso "Servidor offline" e volta sozinha quando ele subir.
+
+Outros comandos, dentro de `frontend/`:
+
+```bash
+npm run test    # testes do parser, da lista de adjacência e da reconstrução das árvores
+npm run build   # checagem de tipos e build de produção
+```
+
+### Como usar
+
+- **Enter** na tela inicial abre a área de trabalho com o grafo da proposta já carregado sobre o mapa de Hong Kong.
+- **Grafo personalizado** (tecla `M`): digite uma aresta por linha (`origem destino peso`), escolha "Direcionado" e "Com peso". `V: X Y` cria vértices isolados. Também dá para importar `.txt` ou `.json` no formato da API.
+- **Algoritmos**: botões DFS, BFS, Dijkstra e Kruskal (teclas `1` a `4`). O resultado aparece em texto/tabela no painel da direita e desenhado no canvas.
+- **Estrutura em memória** (tecla `E`): a lista de adjacência exatamente como o backend guarda, com a comparação com a matriz.
+- **Apagar grafo** no painel da esquerda e **Finalizar aplicação** no canto superior direito.
+
+Outros atalhos: `T` alterna o tema, `R` repete a animação do resultado, `Esc` fecha a gaveta ou a confirmação.

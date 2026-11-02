@@ -1,0 +1,159 @@
+.screen {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.titleBlock {
+  position: absolute;
+  left: clamp(24px, 5vw, 72px);
+  bottom: clamp(24px, 7vh, 72px);
+  max-width: 520px;
+  padding: 4px 0;
+}
+
+.title {
+  font-size: clamp(var(--fs-39), 5vw, var(--fs-61));
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.titleCity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Selo vermelho, como um carimbo chinês */
+.seal {
+  display: inline-grid;
+  place-items: center;
+  padding: 0.12em 0.18em;
+  border-radius: 6px;
+  background: var(--line-dijkstra);
+  color: #ffffff;
+  font-size: 0.5em;
+  line-height: 1.1;
+  writing-mode: vertical-rl;
+  letter-spacing: 0.05em;
+}
+
+.verticalSign {
+  position: absolute;
+  top: clamp(24px, 6vh, 64px);
+  right: clamp(24px, 4vw, 64px);
+  margin: 0;
+  padding: 18px 10px;
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  background: var(--surface);
+  writing-mode: vertical-rl;
+  font-size: var(--fs-31);
+  line-height: 1;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+}
+
+.tiles {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.discipline {
+  margin: 16px 0 4px;
+  font-size: var(--fs-20);
+  font-weight: 600;
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--fs-16);
+  color: var(--ink-muted);
+}
+
+.team {
+  margin: 20px 0 28px;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-16);
+}
+
+.team li {
+  display: flex;
+  gap: 12px;
+  padding: 3px 0;
+}
+
+.team li span:first-child {
+  min-width: 13em;
+  font-weight: 600;
+}
+
+.registration {
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.start {
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 3px solid var(--ink);
+  background: none;
+  font-size: var(--fs-20);
+  font-weight: 800;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+.start:hover,
+.start:focus-visible {
+  animation-play-state: paused;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.endBlock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+}
+
+.endTitle {
+  font-size: var(--fs-39);
+  font-weight: 800;
+}
+
+.endZh {
+  font-size: var(--fs-20);
+  color: var(--ink-muted);
+  letter-spacing: 0.2em;
+}
+
+.newSession {
+  margin-top: 12px;
+  min-height: 44px;
+  padding: 8px 22px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-input);
+  background: var(--ink);
+  color: var(--surface);
+  font-size: var(--fs-16);
+  font-weight: 600;
+}

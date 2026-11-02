@@ -1,0 +1,19 @@
+# Ambiente virtual do Python
+.venv/
+venv/
+
+# Configuração local do Claude Code
+.claude/
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Front-end
+node_modules/
+dist/
+
+# Sistema e editores
+.DS_Store
+Thumbs.db
+.vscode/
