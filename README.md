@@ -14,7 +14,7 @@
 
 * Felipe Dutrain de Sales - Matrícula: 202402011359
 
-* \[Nome do Aluno 3\] - Matrícula: \[0000000\]
+* Guilherme Resende da Rocha - Matrícula: 202402075365
 
 * \[Nome do Aluno 4\] - Matrícula: \[0000000\]
 
