@@ -16,7 +16,7 @@
 
 * Guilherme Resende da Rocha - Matrícula: 202402075365
 
-* \[Nome do Aluno 4\] - Matrícula: \[0000000\]
+* Guilherme de Moraes Lopes Silca - Matrícula: 202401632473
 
 * \[Nome do Aluno 5\] - Matrícula: \[0000000\]
 
