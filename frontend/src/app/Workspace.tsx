@@ -14,7 +14,7 @@ import { Zh } from '../components/ui/Zh';
 import { AlgoBar } from '../components/workspace/AlgoBar';
 import { ALGOS } from '../domain/types';
 import { MISSIONS } from '../game/missions';
-import { useCampaignStore, useMissionController } from '../game/useCampaignStore';
+import { useCampaignSounds, useCampaignStore, useMissionController } from '../game/useCampaignStore';
 import { useGraphStore } from '../store/useGraphStore';
 import { COURSE } from '../data/team';
 import styles from '../components/workspace/workspace.module.css';
@@ -37,6 +37,7 @@ export function Workspace() {
   const [relayoutToken, setRelayoutToken] = useState(0);
   // Campanha: avalia as execuções reais. No modo livre não interfere em nada.
   useMissionController();
+  useCampaignSounds();
   const missionTarget = useCampaignStore((s) =>
     s.playMode === 'campanha' && !s.campaign.finished ? MISSIONS[s.campaign.index].target : null,
   );

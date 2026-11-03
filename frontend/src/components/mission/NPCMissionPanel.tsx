@@ -5,6 +5,7 @@ import { useCampaignStore } from '../../game/useCampaignStore';
 import { ALGO_COLOR_VAR, ALGO_LABEL } from '../../domain/types';
 import { useGraphStore } from '../../store/useGraphStore';
 import { StationSeq } from '../results/StationSeq';
+import { SpeakerIcon } from '../ui/SpeakerIcon';
 import { ConfirmInline } from '../ui/ConfirmInline';
 import { MissionDialog } from './MissionDialog';
 import { MissionProgress, STATUS_LABEL } from './MissionProgress';
@@ -66,7 +67,7 @@ function MinimizedBar() {
 }
 
 function FullPanel() {
-  const { campaign, beat, setMinimized, setPlayMode, tryAgain, next, restart, setSummaryOpen } = useCampaignStore();
+  const { campaign, beat, soundOn, toggleSound, setMinimized, setPlayMode, tryAgain, next, restart, setSummaryOpen } = useCampaignStore();
   const vertices = useGraphStore((s) => s.parsed[s.mode].graph.vertices);
   const [confirmRestart, setConfirmRestart] = useState(false);
 
@@ -104,6 +105,16 @@ function FullPanel() {
             </div>
             <button type="button" className={styles.textButton} onClick={() => setPlayMode('livre')}>
               Modo livre
+            </button>
+            <button
+              type="button"
+              className={`${styles.iconButton} ${styles.pushRight}`}
+              onClick={toggleSound}
+              aria-pressed={soundOn}
+              aria-label="Som da campanha"
+              title={soundOn ? 'Desligar som' : 'Ligar som'}
+            >
+              <SpeakerIcon on={soundOn} />
             </button>
             <button type="button" className={styles.iconButton} onClick={() => setMinimized(true)} aria-label="Minimizar personagem">
               <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
@@ -213,3 +224,4 @@ function FullPanel() {
     </section>
   );
 }
+

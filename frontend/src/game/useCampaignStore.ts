@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { create } from 'zustand';
 import { useGraphStore, type Attempt } from '../store/useGraphStore';
-import { advance, applyAttempt, initialCampaign, retry, type CampaignState } from './campaign';
+import { advance, applyAttempt, initialCampaign, retry, soundCue, type CampaignState } from './campaign';
+import { playCue, readSoundPref, saveSoundPref, unlockAudio } from './sound';
 
 /*
  * Estado do modo campanha. Fica separado do useGraphStore: o modo livre não
@@ -17,7 +18,10 @@ interface CampaignStore {
   campaign: CampaignState;
   /** Sobe a cada nova fala do NPC; reinicia as animações mesmo quando a fala se repete. */
   beat: number;
+  /** Efeitos sonoros da campanha. Começa desligado; a escolha fica no localStorage. */
+  soundOn: boolean;
 
+  toggleSound: () => void;
   setPlayMode: (m: PlayMode) => void;
   setMinimized: (v: boolean) => void;
   setSummaryOpen: (v: boolean) => void;
@@ -34,9 +38,20 @@ export const useCampaignStore = create<CampaignStore>()((set, get) => ({
   summaryOpen: false,
   campaign: initialCampaign(),
   beat: 0,
+  soundOn: readSoundPref(),
 
+  toggleSound: () => {
+    const soundOn = !get().soundOn;
+    // O clique no botão é o gesto que o navegador exige para liberar o áudio.
+    if (soundOn) unlockAudio();
+    saveSoundPref(soundOn);
+    set({ soundOn });
+  },
   // O progresso fica guardado ao voltar para o modo livre; "Reiniciar campanha" zera.
-  setPlayMode: (playMode) => set({ playMode, minimized: false }),
+  setPlayMode: (playMode) => {
+    if (playMode === 'campanha' && get().soundOn) unlockAudio();
+    set({ playMode, minimized: false });
+  },
   setMinimized: (minimized) => set({ minimized }),
   setSummaryOpen: (summaryOpen) => set({ summaryOpen }),
 
@@ -74,6 +89,23 @@ export function useMissionController() {
         if (c.playMode !== 'campanha') return;
         if (s.running && !prev.running) c.tryAgain();
         if (s.lastAttempt && s.lastAttempt !== prev.lastAttempt) c.handleAttempt(s.lastAttempt);
+      }),
+    [],
+  );
+}
+
+/**
+ * Toca o efeito de cada mudança da campanha: no máximo um por mudança, só no modo campanha
+ * e só com o som ligado. Ao entrar na campanha, o sino acompanha a apresentação da missão.
+ */
+export function useCampaignSounds() {
+  useEffect(
+    () =>
+      useCampaignStore.subscribe((s, prev) => {
+        if (!s.soundOn || s.playMode !== 'campanha') return;
+        const entering = prev.playMode !== 'campanha';
+        const cue = entering ? (s.campaign.feedback.kind === 'intro' && !s.campaign.finished ? 'missao' : null) : soundCue(prev.campaign, s.campaign);
+        if (cue) playCue(cue);
       }),
     [],
   );

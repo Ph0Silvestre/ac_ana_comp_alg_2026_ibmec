@@ -3,7 +3,7 @@ import type { AlgoResponse } from '../../api/client';
 import { HK_GRAPH_PAYLOAD } from '../../data/hongKongGraph';
 import type { Algo, GraphPayload } from '../../domain/types';
 import type { Attempt } from '../../store/useGraphStore';
-import { advance, applyAttempt, evaluateAttempt, initialCampaign, retry, type CampaignState } from '../campaign';
+import { advance, applyAttempt, evaluateAttempt, initialCampaign, retry, soundCue, type CampaignState, type SoundCue } from '../campaign';
 import { BFS_SAME_ROUTE_SUCCESS, MISSIONS } from '../missions';
 import graphStoreSource from '../../store/useGraphStore.ts?raw';
 
@@ -86,7 +86,7 @@ describe('missões da campanha', () => {
     expect(wrongStart.feedback.pose).toBe('bravo');
     const wrongTarget = applyAttempt(initialCampaign(), ok('dijkstra', 'A', 'T'));
     expect(wrongTarget.statuses[0]).toBe('erro');
-    expect(wrongTarget.feedback.text).toContain('de A até F');
+    expect(wrongTarget.feedback.text).toContain('O destino era F');
   });
 
   it('o jogador corrige uma tentativa errada e conclui', () => {
@@ -210,5 +210,105 @@ describe('avaliação lê o resultado real da API', () => {
 describe('modo livre', () => {
   it('o store do grafo não depende do sistema de missões', () => {
     expect(graphStoreSource).not.toMatch(/from ['"].*game\//);
+  });
+});
+
+describe('requisitos descumpridos', () => {
+  const mission = MISSIONS[0]; // Dijkstra de A até F
+
+  it('algoritmo diferente do solicitado', () => {
+    const v = evaluateAttempt(mission, ok('bfs'));
+    expect(v.kind).toBe('algoritmo-errado');
+    expect(v.text).toBe(mission.error);
+  });
+
+  it('vértice inicial diferente do solicitado', () => {
+    const v = evaluateAttempt(mission, ok('dijkstra', 'O', 'F'));
+    expect(v.kind).toBe('parametros');
+    expect(v.text).toContain('partir de A');
+    expect(v.text).toContain('partiu de O');
+    expect(v.text).not.toContain('destino');
+  });
+
+  it('vértice final diferente do solicitado (Dijkstra de A até E)', () => {
+    const v = evaluateAttempt(mission, ok('dijkstra', 'A', 'E'));
+    expect(v.kind).toBe('parametros');
+    expect(v.text).toContain('O destino era F');
+    expect(v.text).toContain('escolheu E');
+  });
+
+  it('origem e destino incorretos ao mesmo tempo', () => {
+    const v = evaluateAttempt(mission, ok('dijkstra', 'O', 'T'));
+    expect(v.kind).toBe('parametros');
+    expect(v.text).toContain('de A até F');
+    expect(v.text).toContain('de O até T');
+  });
+
+  it('algoritmo e parâmetros errados juntos: uma fala que cita os dois', () => {
+    const v = evaluateAttempt(mission, ok('bfs', 'O', 'T'));
+    expect(v.kind).toBe('algoritmo-errado');
+    expect(v.text.startsWith(mission.error)).toBe(true);
+    expect(v.text).toContain('de A até F');
+  });
+
+  it('NPC fica bravo e a missão não é concluída em todos os casos', () => {
+    for (const a of [ok('bfs'), ok('dijkstra', 'O', 'F'), ok('dijkstra', 'A', 'E'), ok('dijkstra', 'O', 'T')]) {
+      const s = applyAttempt(initialCampaign(), a);
+      expect(s.feedback.pose).toBe('bravo');
+      expect(s.statuses[0]).toBe('erro');
+    }
+  });
+
+  it('Kruskal não valida origem nem destino', () => {
+    const s = playUntil(3);
+    for (const [start, target] of [['O', 'T'], ['', ''], ['F', 'A']]) {
+      expect(evaluateAttempt(MISSIONS[3], ok('kruskal', start, target)).kind).toBe('sucesso');
+    }
+    expect(applyAttempt(s, ok('kruskal', 'B', 'C')).statuses[3]).toBe('concluida');
+  });
+});
+
+describe('efeitos sonoros', () => {
+  /** Cues gerados por uma sequência de transições. */
+  function cues(steps: ((s: CampaignState) => CampaignState)[], start = initialCampaign()): SoundCue[] {
+    const out: SoundCue[] = [];
+    let s = start;
+    for (const step of steps) {
+      const next = step(s);
+      const cue = soundCue(s, next);
+      if (cue) out.push(cue);
+      s = next;
+    }
+    return out;
+  }
+
+  it('cada tipo de erro gera exatamente uma repreensão', () => {
+    for (const a of [ok('bfs'), ok('dijkstra', 'O', 'F'), ok('dijkstra', 'A', 'E'), ok('dijkstra', 'O', 'T'), ok('kruskal', 'O', 'T')]) {
+      expect(cues([(s) => applyAttempt(s, a)])).toEqual(['repreensao']);
+    }
+  });
+
+  it('erros repetidos repreendem a cada tentativa, uma vez cada', () => {
+    expect(cues([(s) => applyAttempt(s, ok('bfs')), (s) => applyAttempt(s, ok('dfs'))])).toEqual(['repreensao', 'repreensao']);
+  });
+
+  it('falha de execução não repreende', () => {
+    expect(cues([(s) => applyAttempt(s, failed('dijkstra', 'Servidor indisponível.'))])).toEqual([]);
+  });
+
+  it('voltar ao normal depois do erro não toca nada', () => {
+    expect(cues([(s) => applyAttempt(s, ok('bfs')), retry])).toEqual(['repreensao']);
+  });
+
+  it('campanha completa: sucesso, nova missão e uma única fanfarra no fim', () => {
+    const steps: ((s: CampaignState) => CampaignState)[] = [];
+    for (const m of MISSIONS) steps.push((s) => applyAttempt(s, ok(m.algo)), advance);
+    steps.push(advance, (s) => applyAttempt(s, ok('bfs'))); // depois do fim: nada
+    expect(cues(steps)).toEqual(['sucesso', 'missao', 'sucesso', 'missao', 'sucesso', 'missao', 'sucesso', 'fanfarra']);
+  });
+
+  it('reiniciar a campanha toca o sino da primeira missão', () => {
+    const errored = applyAttempt(initialCampaign(), ok('bfs'));
+    expect(soundCue(errored, initialCampaign())).toBe('missao');
   });
 });

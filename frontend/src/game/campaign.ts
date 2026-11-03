@@ -68,18 +68,33 @@ function pathFromParents(parent: Parents, start: string, target: string): string
 
 const conexoes = (route: string[]) => plural(route.length - 1, 'conexão', 'conexões');
 
+/** Quais requisitos de parâmetro a tentativa descumpriu. Kruskal não tem início nem destino. */
+export function paramProblems(mission: Mission, attempt: Pick<Attempt, 'start' | 'target'>): { start: boolean; target: boolean } {
+  return {
+    start: mission.start !== null && attempt.start !== mission.start,
+    target: mission.target !== null && attempt.target !== mission.target,
+  };
+}
+
+const shown = (v: string) => v || 'nenhum';
+
+/** Explica qual requisito de início/destino foi descumprido. null quando os dois estão certos. */
+function paramMessage(mission: Mission, attempt: Pick<Attempt, 'start' | 'target'>): string | null {
+  const p = paramProblems(mission, attempt);
+  if (p.start && p.target) {
+    return `A ordem era de ${mission.start} até ${mission.target}, e você executou de ${shown(attempt.start)} até ${shown(attempt.target)}. Corrija o início e o destino!`;
+  }
+  if (p.start) return `A ordem era partir de ${mission.start}, e você partiu de ${shown(attempt.start)}. Corrija o vértice de início!`;
+  if (p.target) return `O destino era ${mission.target}, e você escolheu ${shown(attempt.target)}. Corrija o vértice de destino!`;
+  return null;
+}
+
 /** Julga uma tentativa contra a missão. `previous` são as evidências das missões já concluídas. */
 export function evaluateAttempt(mission: Mission, attempt: Attempt, previous: (Evidence | null)[] = []): Verdict {
-  if (attempt.algo !== mission.algo) return { kind: 'algoritmo-errado', text: mission.error };
-
-  const wrongStart = mission.start !== null && attempt.start !== mission.start;
-  const wrongTarget = mission.target !== null && attempt.target !== mission.target;
-  if (wrongStart || wrongTarget) {
-    return {
-      kind: 'parametros',
-      text: `O algoritmo está certo, engenheiro, mas a ordem era de ${mission.start} até ${mission.target}. Você usou início ${attempt.start || 'vazio'} e destino ${attempt.target || 'vazio'}. Ajuste a barra de algoritmos e execute de novo!`,
-    };
-  }
+  const params = paramMessage(mission, attempt);
+  // Algoritmo errado tem prioridade; se início/destino também estiverem errados, a fala avisa junto.
+  if (attempt.algo !== mission.algo) return { kind: 'algoritmo-errado', text: params ? `${mission.error} ${params}` : mission.error };
+  if (params) return { kind: 'parametros', text: `Engenheiro! O ${ALGO_LABEL[mission.algo]} está certo, mas não do jeito que ordenei. ${params}` };
 
   if (!attempt.ok) return { kind: 'falha', text: `A execução não foi concluída: ${attempt.message} Corrija e tente de novo.` };
 
@@ -190,4 +205,22 @@ export function advance(state: CampaignState, missions: Mission[] = MISSIONS): C
   const statuses = [...state.statuses];
   statuses[next] = 'ativa';
   return { ...state, index: next, statuses, feedback: introFeedback(missions[next]) };
+}
+
+export type SoundCue = 'missao' | 'sucesso' | 'repreensao' | 'fanfarra';
+
+/**
+ * Som que a mudança de estado da campanha merece, no máximo um por mudança.
+ * Uma tentativa errada gera uma única repreensão, mesmo com vários requisitos descumpridos.
+ * Falha de execução (servidor, grafo desconexo) não é culpa do jogador: sem repreensão.
+ */
+export function soundCue(prev: CampaignState, next: CampaignState): SoundCue | null {
+  if (prev === next) return null;
+  if (next.finished && !prev.finished) return 'fanfarra';
+  if (next.finished) return null;
+  // Nova fala de apresentação: avançou de missão ou reiniciou a campanha.
+  if (next.feedback.kind === 'intro' && next.feedback !== prev.feedback) return 'missao';
+  if (next.statuses[next.index] === 'concluida' && prev.statuses[prev.index] !== 'concluida') return 'sucesso';
+  if (next.feedback.kind === 'erro' && next.feedback !== prev.feedback) return 'repreensao';
+  return null;
 }

@@ -1,19 +1,29 @@
 import { useEffect, useState } from 'react';
 import { MapBackdrop } from '../components/canvas/MapBackdrop';
+import { SpeakerIcon } from '../components/ui/SpeakerIcon';
 import { TileStrip } from '../components/ui/TileStrip';
 import { Zh } from '../components/ui/Zh';
 import backdrop from '../components/canvas/backdrop.module.css';
 import { COURSE, TEAM } from '../data/team';
 import { HK_EDGES, HK_NODES } from '../data/hongKongGraph';
 import { ALGO_COLOR_VAR, ALGOS } from '../domain/types';
+import { playCue } from '../game/sound';
+import { useCampaignStore } from '../game/useCampaignStore';
 import { useGraphStore } from '../store/useGraphStore';
 import styles from './screens.module.css';
 
 const EDGE_STAGGER = 165; // 14 arestas em ~2,5 s
 const EDGE_DRAW = 340;
 
+/** Entra na área de trabalho com o gongo, se o som estiver ligado. Enter e clique são gestos do usuário. */
+function begin() {
+  if (useCampaignStore.getState().soundOn) playCue('gongo');
+  useGraphStore.getState().setScreen('workspace');
+}
+
 export function TitleScreen() {
-  const setScreen = useGraphStore((s) => s.setScreen);
+  const soundOn = useCampaignStore((s) => s.soundOn);
+  const toggleSound = useCampaignStore((s) => s.toggleSound);
   const [app, city] = COURSE.title.split(': ');
   const [inset, setInset] = useState(() => Math.min(440, window.innerWidth * 0.3));
 
@@ -22,7 +32,7 @@ export function TitleScreen() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        setScreen('workspace');
+        begin();
       }
     };
     window.addEventListener('resize', onResize);
@@ -31,7 +41,7 @@ export function TitleScreen() {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('keydown', onKey);
     };
-  }, [setScreen]);
+  }, []);
 
   return (
     <div className={styles.screen}>
@@ -98,10 +108,16 @@ export function TitleScreen() {
             </li>
           ))}
         </ul>
-        <button type="button" className={styles.start} onClick={() => setScreen('workspace')}>
-          Pressione Enter para começar
-          <Zh className="zh-tag">按 Enter 開始</Zh>
-        </button>
+        <div className={styles.startRow}>
+          <button type="button" className={styles.start} onClick={begin}>
+            Pressione Enter para começar
+            <Zh className="zh-tag">按 Enter 開始</Zh>
+          </button>
+          <button type="button" className={styles.soundToggle} onClick={toggleSound} aria-pressed={soundOn}>
+            <SpeakerIcon on={soundOn} />
+            {soundOn ? 'Som ligado' : 'Som desligado'}
+          </button>
+        </div>
       </div>
 
       <TileStrip size={10} className={styles.tiles} />
