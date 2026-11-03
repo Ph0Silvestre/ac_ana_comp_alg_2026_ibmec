@@ -83,3 +83,42 @@
   display: flex;
   gap: 8px;
 }
+
+/* Bandeiras do cabeçalho */
+.flags {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0;
+}
+
+.flagRow {
+  display: flex;
+  gap: 6px;
+}
+
+.flag {
+  display: block;
+  width: 40px;
+  height: 21px;
+  object-fit: cover;
+  border: 1px solid var(--line-district);
+  border-radius: 3px;
+}
+
+.flagCaption {
+  font-size: var(--fs-13);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.flagCaption abbr {
+  text-decoration: none;
+  cursor: help;
+}
+
+@media (max-width: 1180px) {
+  .flagCaption {
+    display: none;
+  }
+}
