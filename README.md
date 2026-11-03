@@ -18,7 +18,7 @@
 
 * Guilherme de Moraes Lopes Silva - Matrícula: 202401632473
 
-* \[Nome do Aluno 5\] - Matrícula: \[0000000\]
+* Pietro Baldo ALbuquerque - Matrícula: 202502579519
 
 ## 📌 Sobre o Projeto
 
