@@ -10,7 +10,7 @@
 
 **Integrantes do Grupo (Preencher antes da entrega):**
 
-* Pedro Silvestre - Matrícula: \202402841904
+* Pedro Silvestre - Matrícula: 202402841904
 
 * Felipe Dutrain de Sales - Matrícula: 202402011359
 

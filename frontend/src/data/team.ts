@@ -10,9 +10,9 @@ export const COURSE = {
 };
 
 export const TEAM: { name: string; registration: string }[] = [
-  { name: 'Guilherme', registration: '0000000' },
+  { name: 'Pedro Silvestre', registration: '202402841904' },
   { name: 'Felipe Dutrain de Sales', registration: '202402011359' },
-  { name: 'Integrante 3', registration: '0000000' },
-  { name: 'Integrante 4', registration: '0000000' },
-  { name: 'Integrante 5', registration: '0000000' },
+  { name: 'PGuilherme Resende da Rocha', registration: '202402075365' },
+  { name: 'Guilherme de Moraes Lopes Silva', registration: '202401632473' },
+  { name: 'Pietro Baldo ALbuquerque', registration: '202502579519' },
 ];
